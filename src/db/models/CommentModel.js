@@ -1,5 +1,5 @@
 import BaseModel from "./BaseModel.js"
-import PostsModel from "./PostModel.js"
+import PostModel from "./PostModel.js"
 import UserModel from "./UserModel.js"
 
 class CommentModel extends BaseModel {
@@ -16,7 +16,7 @@ class CommentModel extends BaseModel {
         }
       },
       post: {
-        modelClass: PostsModel,
+        modelClass: PostModel,
         relation: BaseModel.BelongsToOneRelation,
         join: {
           from: "comments.postId",

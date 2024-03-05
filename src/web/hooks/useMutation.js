@@ -1,4 +1,9 @@
-import { deleteResource, updateResource } from "@/web/services/apiClient"
+/* eslint-disable no-console */
+import {
+  createResource,
+  deleteResource,
+  updateResource
+} from "@/web/services/apiClient"
 import { useMutation } from "@tanstack/react-query"
 
 export const useUpdatePost = (postId, refetch) =>
@@ -89,7 +94,7 @@ export const useDeleteUser = (users, setUsers) =>
     }
   })
 
-export const useDeleteComment = (comments, setComments) =>
+export const useDeleteComment = (refetch, comments, setComments) =>
   useMutation({
     mutationFn: (commentId) => deleteResource(["comments", commentId]),
     onError: (commentId, context) => {
@@ -100,6 +105,9 @@ export const useDeleteComment = (comments, setComments) =>
       setComments(comments.filter((comment) => comment.id !== commentId))
 
       return { oldComments }
+    },
+    onSuccess: () => {
+      refetch()
     }
   })
 
@@ -109,5 +117,13 @@ export const useUpdateComment = (refetch) =>
       updateResource(["comments", commentId], { content }),
     onSuccess: () => {
       refetch()
+    }
+  })
+export const useCreateComment = (refetch, setComments) =>
+  useMutation({
+    mutationFn: ({ postId, content, userId }) =>
+      createResource(["comments"], { postId, content, userId }),
+    onSuccess: (newComment) => {
+      setComments((prevComments) => [...prevComments, newComment])
     }
   })

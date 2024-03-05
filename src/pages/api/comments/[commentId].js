@@ -23,30 +23,6 @@ const handle = mw({
       send(comments)
     }
   ],
-  POST: [
-    validate({
-      query: {
-        postId: idValidator.required()
-      },
-      body: {
-        content: commentContentValidator.required()
-      }
-    }),
-    async ({
-      send,
-      input: {
-        query: { postId },
-        body: { content }
-      },
-      models: { CommentModel }
-    }) => {
-      const newComment = await CommentModel.query().insert({
-        postId,
-        content
-      })
-      send(newComment)
-    }
-  ],
   DELETE: [
     validate({
       query: {

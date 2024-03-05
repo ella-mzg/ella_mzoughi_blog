@@ -2,13 +2,18 @@ import CommentSection from "@/web/components/CommentSection"
 import { useSession } from "@/web/components/SessionContext"
 import Button from "@/web/components/ui/Button"
 import Link from "@/web/components/ui/Link"
-import { useDeleteComment, useUpdateComment } from "@/web/hooks/useMutation"
+import {
+  useCreateComment,
+  useDeleteComment,
+  useUpdateComment
+} from "@/web/hooks/useMutation"
 import { readResource } from "@/web/services/apiClient"
 import { canEdit } from "@/web/utils/checkRoles"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useState } from "react"
 
+// eslint-disable-next-line max-lines-per-function
 const PostPage = () => {
   const router = useRouter()
   const { session } = useSession()
@@ -28,7 +33,32 @@ const PostPage = () => {
   const [comments, setComments] = useState([])
   const [editingComment, setEditingComment] = useState(null)
   const [newContent, setNewContent] = useState("")
-  const deleteMutation = useDeleteComment(comments, setComments)
+  const [commentContent, setCommentContent] = useState("")
+  const createCommentMutation = useCreateComment(postId, refetch, setComments)
+  const handleCreateComment = async () => {
+    if (!commentContent.trim()) {
+      return
+    }
+
+    const userId = session.user?.id
+
+    if (!userId) {
+      // eslint-disable-next-line no-console
+      console.error(
+        "User ID is not available. User must be logged in to post comments."
+      )
+
+      return
+    }
+
+    await createCommentMutation.mutateAsync({
+      postId,
+      content: commentContent,
+      userId
+    })
+    setCommentContent("")
+  }
+  const deleteMutation = useDeleteComment(refetch, comments, setComments)
   const updateMutation = useUpdateComment(refetch)
   const handleDelete = async (commentId) => {
     await deleteMutation.mutateAsync(commentId)
@@ -63,6 +93,19 @@ const PostPage = () => {
           Edit Post
         </Button>
       )}
+      <div className="my-4">
+        <input
+          className="w-full p-2 border border-gray-300 rounded mb-2"
+          placeholder="Write a comment..."
+          value={commentContent}
+          onChange={(e) => setCommentContent(e.target.value)}
+        />
+        <Button
+          onClick={handleCreateComment}
+          disabled={createCommentMutation.isLoading}>
+          Post Comment
+        </Button>
+      </div>
       <CommentSection
         comments={post?.comments}
         editingComment={editingComment}
