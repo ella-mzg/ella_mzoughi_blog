@@ -6,67 +6,19 @@ import {
   useCreateComment,
   useDeleteComment,
   useUpdateComment
-} from "@/web/hooks/useMutation"
-import { readResource } from "@/web/services/apiClient"
+} from "@/web/hooks/useCommentActions"
+import { usePostData } from "@/web/hooks/usePostData"
 import { canEdit } from "@/web/utils/checkRoles"
-import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
-import { useState } from "react"
 
-// eslint-disable-next-line max-lines-per-function
 const PostPage = () => {
   const router = useRouter()
+  const { postId } = router.query
   const { session } = useSession()
-  const {
-    query: { postId }
-  } = useRouter()
-  const {
-    isLoading,
-    data: { data: { result: [post] = [{}] } = {} },
-    refetch
-  } = useQuery({
-    queryKey: ["post"],
-    queryFn: () => readResource(["posts", postId]),
-    enabled: Boolean(postId),
-    initialData: { data: { result: [{}] } }
-  })
-  const [comments, setComments] = useState([])
-  const [editingComment, setEditingComment] = useState(null)
-  const [newContent, setNewContent] = useState("")
-  const [commentContent, setCommentContent] = useState("")
-  const createCommentMutation = useCreateComment(postId, refetch, setComments)
-  const handleCreateComment = async () => {
-    if (!commentContent.trim()) {
-      return
-    }
-
-    const userId = session.user?.id
-
-    if (!userId) {
-      // eslint-disable-next-line no-console
-      console.error(
-        "User ID is not available. User must be logged in to post comments."
-      )
-
-      return
-    }
-
-    await createCommentMutation.mutateAsync({
-      postId,
-      content: commentContent,
-      userId
-    })
-    setCommentContent("")
-  }
-  const deleteMutation = useDeleteComment(refetch, comments, setComments)
-  const updateMutation = useUpdateComment(refetch)
-  const handleDelete = async (commentId) => {
-    await deleteMutation.mutateAsync(commentId)
-  }
-  const handleUpdate = async (commentId, content) => {
-    await updateMutation.mutateAsync({ commentId, content })
-    setEditingComment(null)
-  }
+  const { post, isLoading } = usePostData(postId)
+  const createCommentMutation = useCreateComment(postId)
+  const updateCommentMutation = useUpdateComment(postId)
+  const deleteCommentMutation = useDeleteComment(postId)
 
   if (isLoading) {
     return "Loading..."
@@ -93,27 +45,11 @@ const PostPage = () => {
           Edit Post
         </Button>
       )}
-      <div className="my-4">
-        <input
-          className="w-full p-2 border border-gray-300 rounded mb-2"
-          placeholder="Write a comment..."
-          value={commentContent}
-          onChange={(e) => setCommentContent(e.target.value)}
-        />
-        <Button
-          onClick={handleCreateComment}
-          disabled={createCommentMutation.isLoading}>
-          Post Comment
-        </Button>
-      </div>
       <CommentSection
-        comments={post?.comments}
-        editingComment={editingComment}
-        setEditingComment={setEditingComment}
-        newContent={newContent}
-        setNewContent={setNewContent}
-        handleUpdate={handleUpdate}
-        handleDelete={handleDelete}
+        comments={post.comments}
+        createComment={createCommentMutation}
+        updateComment={updateCommentMutation}
+        deleteComment={deleteCommentMutation}
       />
     </article>
   )

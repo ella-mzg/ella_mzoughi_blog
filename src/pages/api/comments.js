@@ -16,28 +16,6 @@ const handle = mw({
 
       send(newComment)
     }
-  ],
-  GET: [
-    validate({
-      query: {
-        postId: idValidator.required()
-      }
-    }),
-    async ({
-      send,
-      input: {
-        query: { postId }
-      },
-      models: { CommentModel }
-    }) => {
-      const comments = await CommentModel.query()
-        .where("postId", postId)
-        .withGraphFetched("[author]")
-        // eslint-disable-next-line line-comment-position, no-inline-comments
-        .orderBy("createdAt", "desc") // Doesn't work?
-
-      send(comments)
-    }
   ]
 })
 
