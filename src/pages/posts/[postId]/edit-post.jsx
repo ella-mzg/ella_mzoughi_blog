@@ -1,54 +1,53 @@
+import { postContentValidator, titleValidator } from "@/utils/validators"
 import { useSession } from "@/web/components/SessionContext"
-import Alert from "@/web/components/ui/Alert"
 import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
 import SubmitButton from "@/web/components/ui/SubmitButton"
-import { useDeletePost, useUpdatePost } from "@/web/hooks/useMutation"
-import { readResource } from "@/web/services/apiClient"
+import {
+  useDeletePost,
+  useReadPost,
+  useUpdatePost
+} from "@/web/hooks/usePostActions"
 import { canEdit } from "@/web/utils/checkRoles"
-import { useQuery } from "@tanstack/react-query"
 import { Formik } from "formik"
 import { useRouter } from "next/router"
-import { object, string } from "yup"
+import { useCallback } from "react"
+import { object } from "yup"
 
 const validationSchema = object({
-  title: string().required().label("Title"),
-  content: string().required().label("Content")
+  title: titleValidator.required().label("Title"),
+  content: postContentValidator.required().label("Content")
 })
 const EditPost = () => {
-  const {
-    query: { postId }
-  } = useRouter()
+  const router = useRouter()
+  const { postId } = router.query
   const { session } = useSession()
-  const {
-    isLoading,
-    data: { data: { result: [post] = [{}] } = {} },
-    refetch
-  } = useQuery({
-    queryKey: ["post"],
-    queryFn: () => readResource(["posts", postId]),
-    enabled: Boolean(postId),
-    initialData: { data: { result: [{}] } }
-  })
-  const updateMutation = useUpdatePost(postId, refetch)
-  const deleteMutation = useDeletePost(postId)
-  const handleUpdate = async ({ title, content }) => {
-    await updateMutation.mutateAsync({ title, content })
-  }
-  const handleDelete = async () => {
-    await deleteMutation.mutateAsync()
-  }
+  const { post, isLoading } = useReadPost(postId)
+  const updatePost = useUpdatePost()
+  const deletePost = useDeletePost()
+  const handleUpdate = useCallback(
+    async (values) => {
+      await updatePost.mutateAsync(
+        { postId, newData: values },
+        {
+          onSuccess: () => {
+            router.push(`/posts/${postId}`)
+          }
+        }
+      )
+    },
+    [updatePost, postId, router]
+  )
+  const handleDelete = useCallback(() => {
+    deletePost.mutateAsync(postId, {
+      onSuccess: () => {
+        router.push("/")
+      }
+    })
+  }, [deletePost, postId, router])
 
   if (isLoading) {
     return "Loading..."
-  }
-
-  if (updateMutation.isSuccess) {
-    return <Alert>Successfully updated your post!</Alert>
-  }
-
-  if (deleteMutation.isSuccess) {
-    return <Alert>Successfully deleted your post!</Alert>
   }
 
   return (
@@ -60,19 +59,26 @@ const EditPost = () => {
         <FormField
           name="title"
           type="text"
-          placeholder="Update your post title"
           label="Title"
+          placeholder="Update your post title"
         />
         <FormField
           name="content"
-          type="text"
-          placeholder="Update your post content"
+          as="textarea"
           label="Content"
+          placeholder="Update your post content"
         />
         <div className="flex justify-center space-x-2">
-          {canEdit(session, post) && <SubmitButton>Update Post</SubmitButton>}
           {canEdit(session, post) && (
-            <SubmitButton onClick={handleDelete}>Delete Post</SubmitButton>
+            <>
+              <SubmitButton type="submit">Update Post</SubmitButton>
+              <button
+                type="button"
+                className="py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                onClick={handleDelete}>
+                Delete Post
+              </button>
+            </>
           )}
         </div>
       </Form>

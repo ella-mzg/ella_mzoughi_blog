@@ -21,6 +21,7 @@ const initialValues = {
 const CreatePost = () => {
   const router = useRouter()
   const { session } = useSession()
+  const authorId = session?.user?.id
   const { mutateAsync: savePost } = useMutation({
     mutationFn: (post) => createResource("posts", post)
   })
@@ -29,12 +30,12 @@ const CreatePost = () => {
       const response = await savePost({
         title,
         content,
-        userId: session.user.id
+        userId: authorId
       })
       const [post] = response.data.result
       router.push(`/posts/${post.id}`)
     },
-    [savePost, router, session.user.id]
+    [savePost, router, authorId]
   )
 
   return (
@@ -43,11 +44,17 @@ const CreatePost = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}>
       <Form>
-        <FormField name="title" label="Title" placeholder="Enter a title" />
+        <FormField
+          name="title"
+          type="text"
+          label="Title"
+          placeholder="Enter a title"
+        />
         <FormField
           name="content"
+          as="textarea"
           label="Content"
-          placeholder="Write your post"
+          placeholder="Write your post..."
         />
         <div className="flex justify-center">
           <SubmitButton className="w-30">Create Post</SubmitButton>

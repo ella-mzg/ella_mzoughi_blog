@@ -1,4 +1,4 @@
-import { emailValidator } from "@/utils/validators"
+import { emailValidator, passwordValidator } from "@/utils/validators"
 import { useSession } from "@/web/components/SessionContext"
 import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
@@ -8,7 +8,7 @@ import { createResource } from "@/web/services/apiClient"
 import { useMutation } from "@tanstack/react-query"
 import { Formik } from "formik"
 import { useRouter } from "next/router"
-import { object, string } from "yup"
+import { object } from "yup"
 
 const initialValues = {
   email: "",
@@ -16,7 +16,7 @@ const initialValues = {
 }
 const validationSchema = object({
   email: emailValidator.required().label("E-mail"),
-  password: string().required().label("Password")
+  password: passwordValidator.required().label("Password")
 })
 const SignInPage = () => {
   const router = useRouter()
@@ -66,3 +66,6 @@ const SignInPage = () => {
 }
 
 export default SignInPage
+
+// eslint-disable-next-line no-warning-comments
+// TODO: add useCallBacks

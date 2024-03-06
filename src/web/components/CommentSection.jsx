@@ -1,8 +1,9 @@
+import CommentForm from "@/web/components/CommentForm"
+import CommentItem from "@/web/components/CommentItem"
 import { useSession } from "@/web/components/SessionContext"
-import Button from "@/web/components/ui/Button"
 import { useCallback, useState } from "react"
 
-// eslint-disable-next-line max-lines-per-function
+const newCommentInitialValues = { title: "", content: "" }
 const CommentSection = ({
   comments = [],
   createComment,
@@ -11,23 +12,23 @@ const CommentSection = ({
 }) => {
   const { session } = useSession()
   const authorId = session?.user?.id
-  const [newCommentContent, setNewCommentContent] = useState("")
   const [editingCommentId, setEditingCommentId] = useState(null)
-  const [editContent, setEditContent] = useState("")
-  const handleCreateComment = useCallback(async () => {
-    await createComment.mutateAsync({
-      content: newCommentContent,
-      userId: authorId
-    })
-    setNewCommentContent("")
-  }, [createComment, newCommentContent, authorId])
-  const handleUpdate = useCallback(
-    async (commentId) => {
-      await updateComment.mutateAsync({ commentId, content: editContent })
-      setEditingCommentId(null)
-      setEditContent("")
+  const handleCreateComment = useCallback(
+    async (values, { resetForm }) => {
+      await createComment.mutateAsync({ ...values, userId: authorId })
+      resetForm()
     },
-    [updateComment, editContent]
+    [createComment, authorId]
+  )
+  const handleUpdateComment = useCallback(
+    async (values) => {
+      await updateComment.mutateAsync({
+        commentId: editingCommentId,
+        ...values
+      })
+      setEditingCommentId(null)
+    },
+    [updateComment, editingCommentId]
   )
   const handleDelete = useCallback(
     async (commentId) => {
@@ -39,44 +40,22 @@ const CommentSection = ({
   return (
     <div>
       <h3>Comments</h3>
-      <div>
-        <textarea
-          value={newCommentContent}
-          onChange={(e) => setNewCommentContent(e.target.value)}
-          placeholder="Write a new comment..."
+      <CommentForm
+        initialValues={newCommentInitialValues}
+        onSubmit={handleCreateComment}
+        placeholder="Write a new comment..."
+      />
+      {comments.map((comment) => (
+        <CommentItem
+          key={comment.id}
+          comment={comment}
+          isEditing={editingCommentId === comment.id}
+          onEdit={setEditingCommentId}
+          onDelete={handleDelete}
+          onSubmit={(values) => handleUpdateComment(values)}
         />
-        <Button onClick={handleCreateComment}>Post Comment</Button>
-      </div>
-      {comments.length > 0 ? (
-        comments.map((comment) => (
-          <div key={comment.id} className="comment">
-            <p>
-              {comment.author.username}: {comment.content}
-            </p>
-            <div>
-              <Button
-                onClick={() => {
-                  setEditingCommentId(comment.id)
-                  setEditContent(comment.content)
-                }}>
-                Edit
-              </Button>
-              <Button onClick={() => handleDelete(comment.id)}>Delete</Button>
-            </div>
-            {editingCommentId === comment.id && (
-              <div>
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                />
-                <Button onClick={() => handleUpdate(comment.id)}>Save</Button>
-              </div>
-            )}
-          </div>
-        ))
-      ) : (
-        <p>No comments yet.</p>
-      )}
+      ))}
+      {comments.length === 0 && <p>No comments yet.</p>}
     </div>
   )
 }

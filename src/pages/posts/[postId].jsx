@@ -7,7 +7,7 @@ import {
   useDeleteComment,
   useUpdateComment
 } from "@/web/hooks/useCommentActions"
-import { usePostData } from "@/web/hooks/usePostData"
+import { useReadPost } from "@/web/hooks/usePostActions"
 import { canEdit } from "@/web/utils/checkRoles"
 import { useRouter } from "next/router"
 
@@ -15,7 +15,7 @@ const PostPage = () => {
   const router = useRouter()
   const { postId } = router.query
   const { session } = useSession()
-  const { post, isLoading } = usePostData(postId)
+  const { post, isLoading } = useReadPost(postId)
   const createCommentMutation = useCreateComment(postId)
   const updateCommentMutation = useUpdateComment(postId)
   const deleteCommentMutation = useDeleteComment(postId)
