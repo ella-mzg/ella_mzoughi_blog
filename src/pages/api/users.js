@@ -5,17 +5,12 @@ import { AVERAGE_PASSWORD_HASHING_DURATION } from "@/pages/api/constants"
 import sleep from "@/utils/sleep"
 import {
   emailValidator,
+  pageValidator,
   passwordValidator,
   usernameValidator
 } from "@/utils/validators"
 
 const handle = mw({
-  GET: [
-    async ({ send, models: { UserModel } }) => {
-      const users = await UserModel.query()
-      send(users)
-    }
-  ],
   POST: [
     validate({
       body: {
@@ -61,6 +56,26 @@ const handle = mw({
       })
 
       send(true)
+    }
+  ],
+  GET: [
+    validate({
+      query: {
+        page: pageValidator.required()
+      }
+    }),
+    async ({
+      send,
+      input: {
+        query: { page }
+      },
+      models: { UserModel }
+    }) => {
+      const query = UserModel.query()
+      const users = await query.clone().page(page)
+      const [{ count }] = await query.clone().count()
+
+      send(users, { count })
     }
   ]
 })

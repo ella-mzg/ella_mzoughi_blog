@@ -10,7 +10,7 @@ const MainMenu = ({ children: _, ...otherProps }) => {
         {session ? (
           <>
             <li>
-              <Link href={"/list-users"} className="hover:text-pink-500">
+              <Link href={"/users"} className="hover:text-pink-500">
                 Users
               </Link>
             </li>

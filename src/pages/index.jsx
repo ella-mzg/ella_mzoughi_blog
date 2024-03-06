@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query"
 
 export const getServerSideProps = ({ query: { page } }) => ({
   props: {
-    page: pageValidator.validateSync(page)
+    page: pageValidator.validateSync(page) || 1
   }
 })
 const IndexPage = (props) => {
