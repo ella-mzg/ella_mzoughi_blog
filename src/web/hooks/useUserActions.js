@@ -1,5 +1,32 @@
-import { deleteResource, updateResource } from "@/web/services/apiClient"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import {
+  deleteResource,
+  readResource,
+  updateResource
+} from "@/web/services/apiClient"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/router"
+
+export const useReadUser = (userId) =>
+  useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => readResource(["users", userId]),
+    enabled: Boolean(userId),
+    initialData: { data: { result: [{}] } }
+  })
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: ({ userId, newData }) =>
+      updateResource(["users", userId], newData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["user"])
+      router.back()
+    }
+  })
+}
 
 export const useToggleUser = () => {
   const queryClient = useQueryClient()

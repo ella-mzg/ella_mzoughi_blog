@@ -20,8 +20,9 @@ const PostPage = () => {
   const updateCommentMutation = useUpdateComment(postId)
   const deleteCommentMutation = useDeleteComment(postId)
 
-  if (isLoading) {
-    return "Loading..."
+  // Should create an utility function
+  if (isLoading || !post) {
+    return <div className="text-center p-32 animate-bounce">Loading...</div>
   }
 
   return (

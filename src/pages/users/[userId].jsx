@@ -19,8 +19,8 @@ const UserProfile = () => {
     initialData: { data: { result: [{}] } }
   })
 
-  if (isLoading) {
-    return "Loading..."
+  if (isLoading || !user) {
+    return <div className="text-center p-32 animate-bounce">Loading...</div>
   }
 
   return (

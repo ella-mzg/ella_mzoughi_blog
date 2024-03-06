@@ -23,11 +23,11 @@ const EditPost = () => {
   const { postId } = router.query
   const { session } = useSession()
   const { post, isLoading } = useReadPost(postId)
-  const updatePost = useUpdatePost()
-  const deletePost = useDeletePost()
+  const updatePostMutation = useUpdatePost()
+  const deletePostMutation = useDeletePost()
   const handleUpdate = useCallback(
     async (values) => {
-      await updatePost.mutateAsync(
+      await updatePostMutation.mutateAsync(
         { postId, newData: values },
         {
           onSuccess: () => {
@@ -36,18 +36,18 @@ const EditPost = () => {
         }
       )
     },
-    [updatePost, postId, router]
+    [updatePostMutation, postId, router]
   )
   const handleDelete = useCallback(() => {
-    deletePost.mutateAsync(postId, {
+    deletePostMutation.mutateAsync(postId, {
       onSuccess: () => {
         router.push("/")
       }
     })
-  }, [deletePost, postId, router])
+  }, [deletePostMutation, postId, router])
 
-  if (isLoading) {
-    return "Loading..."
+  if (isLoading || !post) {
+    return <div className="text-center p-32 animate-bounce">Loading...</div>
   }
 
   return (
