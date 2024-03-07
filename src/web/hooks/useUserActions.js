@@ -9,9 +9,12 @@ import { useRouter } from "next/router"
 export const useReadUser = (userId) =>
   useQuery({
     queryKey: ["user", userId],
-    queryFn: () => readResource(["users", userId]),
+    queryFn: () =>
+      readResource(["users", userId]).then((response) => ({
+        user: response.data.result[0]
+      })),
     enabled: Boolean(userId),
-    initialData: { data: { result: [{}] } }
+    initialData: () => ({ user: {} })
   })
 
 export const useUpdateUser = () => {
@@ -57,7 +60,7 @@ export const useToggleUser = () => {
       queryClient.setQueryData(["users"], context.previousUsers)
     },
 
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries(["users"])
     }
   })
@@ -82,7 +85,7 @@ export const useDeleteUser = () => {
       }
     },
 
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries(["users"])
     }
   })

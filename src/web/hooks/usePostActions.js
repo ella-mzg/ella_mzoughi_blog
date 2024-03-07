@@ -4,7 +4,6 @@ import {
   updateResource
 } from "@/web/services/apiClient"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useRouter } from "next/router"
 
 export const useReadPost = (postId) => {
   const { isLoading, isError, data, error } = useQuery({
@@ -24,7 +23,6 @@ export const useReadPost = (postId) => {
 
 export const useUpdatePost = () => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: ({ postId, newData }) =>
@@ -46,16 +44,16 @@ export const useUpdatePost = () => {
     onError: (err, { postId }, context) => {
       queryClient.setQueryData(["post", postId], context.previousPost)
     },
-    onSettled: ({ postId }) => {
-      queryClient.invalidateQueries(["post", postId])
-      router.push(`/posts/${postId}`)
+    onSuccess: ({ postId }) => {
+      if (postId) {
+        queryClient.invalidateQueries(["post", postId])
+      }
     }
   })
 }
 
 export const useDeletePost = () => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: (postId) => deleteResource(["posts", postId]),
@@ -71,9 +69,8 @@ export const useDeletePost = () => {
         queryClient.setQueryData(["post", postId], context.previousPost)
       }
     },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries(["posts"])
-      router.push("/")
     }
   })
 }

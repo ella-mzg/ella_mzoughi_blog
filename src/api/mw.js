@@ -1,3 +1,5 @@
+/* eslint-disable no-warning-comments */
+/* eslint-disable no-inline-comments */
 import { createContext } from "@/api/createContext"
 import {
   HttpForbiddenError,
@@ -29,7 +31,10 @@ const handleError = (err, { res, logger }) => {
       .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .send({ error: "Something went wrong." })
 
-    logger.error(error)
+    // eslint-disable-next-line line-comment-position
+    // logger.info(error) // Todo: logger.error
+    // eslint-disable-next-line no-console
+    console.log(error)
 
     return
   }

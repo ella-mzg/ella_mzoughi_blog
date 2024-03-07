@@ -3,15 +3,11 @@ import { useSession } from "@/web/components/SessionContext"
 import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
 import SubmitButton from "@/web/components/ui/SubmitButton"
-import {
-  useDeletePost,
-  useReadPost,
-  useUpdatePost
-} from "@/web/hooks/usePostActions"
+import { useReadPost, useUpdatePost } from "@/web/hooks/usePostActions"
 import { canEdit } from "@/web/utils/checkRoles"
 import { Formik } from "formik"
 import { useRouter } from "next/router"
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { object } from "yup"
 
 const validationSchema = object({
@@ -24,27 +20,39 @@ const EditPost = () => {
   const { session } = useSession()
   const { post, isLoading } = useReadPost(postId)
   const updatePostMutation = useUpdatePost()
-  const deletePostMutation = useDeletePost()
+  const [initialValues, setInitialValues] = useState({
+    title: "",
+    content: ""
+  })
+
+  useEffect(() => {
+    if (!isLoading && post) {
+      setInitialValues({
+        title: post.title || "",
+        content: post.content || ""
+      })
+    }
+  }, [isLoading, post])
+
   const handleUpdate = useCallback(
     async (values) => {
+      if (!postId) {
+        return
+      }
+
       await updatePostMutation.mutateAsync(
         { postId, newData: values },
         {
           onSuccess: () => {
-            router.push(`/posts/${postId}`)
+            if (postId) {
+              router.push(`/posts/${postId}`)
+            }
           }
         }
       )
     },
     [updatePostMutation, postId, router]
   )
-  const handleDelete = useCallback(() => {
-    deletePostMutation.mutateAsync(postId, {
-      onSuccess: () => {
-        router.push("/")
-      }
-    })
-  }, [deletePostMutation, postId, router])
 
   if (isLoading || !post) {
     return <div className="text-center p-32 animate-bounce">Loading...</div>
@@ -52,7 +60,8 @@ const EditPost = () => {
 
   return (
     <Formik
-      initialValues={{ title: post.title, content: post.content }}
+      initialValues={initialValues}
+      enableReinitialize
       validationSchema={validationSchema}
       onSubmit={handleUpdate}>
       <Form>
@@ -70,15 +79,7 @@ const EditPost = () => {
         />
         <div className="flex justify-center space-x-2">
           {canEdit(session, post) && (
-            <>
-              <SubmitButton type="submit">Update Post</SubmitButton>
-              <button
-                type="button"
-                className="py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
-                onClick={handleDelete}>
-                Delete Post
-              </button>
-            </>
+            <SubmitButton type="submit">Update Post</SubmitButton>
           )}
         </div>
       </Form>

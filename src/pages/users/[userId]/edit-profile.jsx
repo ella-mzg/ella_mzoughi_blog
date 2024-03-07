@@ -15,7 +15,7 @@ const validationSchema = object({
 const EditUser = () => {
   const router = useRouter()
   const { userId } = router.query
-  const { isLoading, data } = useReadUser(userId)
+  const { isLoading, data: { user } = {} } = useReadUser(userId)
   const updateUserMutation = useUpdateUser()
   const [initialValues, setInitialValues] = useState({
     username: "",
@@ -23,14 +23,13 @@ const EditUser = () => {
   })
 
   useEffect(() => {
-    if (!isLoading && data?.data?.result.length > 0) {
-      const [user] = data.data.result
+    if (!isLoading && user) {
       setInitialValues({
         username: user.username || "",
         email: user.email || ""
       })
     }
-  }, [isLoading, data])
+  }, [isLoading, user])
 
   const handleSubmit = async (values, { setSubmitting }) => {
     await updateUserMutation.mutateAsync({ userId, newData: values })
