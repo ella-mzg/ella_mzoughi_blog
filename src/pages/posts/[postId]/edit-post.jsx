@@ -2,12 +2,13 @@ import { postContentValidator, titleValidator } from "@/utils/validators"
 import { useSession } from "@/web/components/SessionContext"
 import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
+import Loader from "@/web/components/ui/Loader"
 import SubmitButton from "@/web/components/ui/SubmitButton"
 import { useReadPost, useUpdatePost } from "@/web/hooks/usePostActions"
 import { canEdit } from "@/web/utils/checkRoles"
 import { Formik } from "formik"
 import { useRouter } from "next/router"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { object } from "yup"
 
 const validationSchema = object({
@@ -18,72 +19,70 @@ const EditPost = () => {
   const router = useRouter()
   const { postId } = router.query
   const { session } = useSession()
-  const { post, isLoading } = useReadPost(postId)
-  const updatePostMutation = useUpdatePost()
+  const { data, isLoading } = useReadPost(postId)
+  const post = data?.data?.result[0]
   const [initialValues, setInitialValues] = useState({
     title: "",
     content: ""
   })
 
   useEffect(() => {
-    if (!isLoading && post) {
+    if (post) {
       setInitialValues({
         title: post.title || "",
         content: post.content || ""
       })
     }
-  }, [isLoading, post])
+  }, [post])
 
-  const handleUpdate = useCallback(
-    async (values) => {
-      if (!postId) {
-        return
-      }
+  const { mutateAsync: updatePost, isSuccess } = useUpdatePost()
 
-      await updatePostMutation.mutateAsync(
-        { postId, newData: values },
-        {
-          onSuccess: () => {
-            if (postId) {
-              router.push(`/posts/${postId}`)
-            }
-          }
-        }
-      )
-    },
-    [updatePostMutation, postId, router]
-  )
+  useEffect(() => {
+    if (isSuccess) {
+      router.push(`/posts/${postId}`)
+    }
+  }, [isSuccess, router, postId])
 
-  if (isLoading || !post) {
-    return <div className="text-center p-32 animate-bounce">Loading...</div>
+  const handleSubmit = async (values) => {
+    try {
+      await updatePost({ postId, newData: values })
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to update post:", error)
+    }
   }
 
   return (
-    <Formik
-      initialValues={initialValues}
-      enableReinitialize
-      validationSchema={validationSchema}
-      onSubmit={handleUpdate}>
-      <Form>
-        <FormField
-          name="title"
-          type="text"
-          label="Title"
-          placeholder="Update your post title"
-        />
-        <FormField
-          name="content"
-          as="textarea"
-          label="Content"
-          placeholder="Update your post content"
-        />
-        <div className="flex justify-center space-x-2">
-          {canEdit(session, post) && (
-            <SubmitButton type="submit">Update Post</SubmitButton>
-          )}
-        </div>
-      </Form>
-    </Formik>
+    <>
+      <Loader isLoading={isLoading} />
+      {!isLoading && (
+        <Formik
+          initialValues={initialValues}
+          enableReinitialize
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}>
+          <Form>
+            <FormField
+              name="title"
+              type="text"
+              label="Title"
+              placeholder="Update your post title"
+            />
+            <FormField
+              name="content"
+              as="textarea"
+              label="Content"
+              placeholder="Update your post content"
+            />
+            <div className="flex justify-center space-x-2">
+              {canEdit(session, post) && (
+                <SubmitButton>Update Post</SubmitButton>
+              )}
+            </div>
+          </Form>
+        </Formik>
+      )}
+    </>
   )
 }
 

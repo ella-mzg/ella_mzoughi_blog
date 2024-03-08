@@ -4,29 +4,38 @@ import {
   updateResource
 } from "@/web/services/apiClient"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useRouter } from "next/router"
 
 export const useReadUser = (userId) =>
   useQuery({
     queryKey: ["user", userId],
-    queryFn: () =>
-      readResource(["users", userId]).then((response) => ({
-        user: response.data.result[0]
-      })),
-    enabled: Boolean(userId),
-    initialData: () => ({ user: {} })
+    queryFn: () => readResource(["users", userId]),
+    enabled: Boolean(userId)
   })
 
 export const useUpdateUser = () => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: ({ userId, newData }) =>
       updateResource(["users", userId], newData),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["user"])
-      router.back()
+
+    onMutate: async ({ userId, newData }) => {
+      await queryClient.cancelQueries(["user", userId])
+      const previousUserData = queryClient.getQueryData(["user", userId])
+
+      queryClient.setQueryData(["user", userId], (oldData) => ({
+        ...oldData,
+        data: {
+          ...oldData.data,
+          ...newData
+        }
+      }))
+
+      return { previousUserData, userId }
+    },
+
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries(["user", userId])
     }
   })
 }
@@ -35,11 +44,21 @@ export const useToggleUser = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (user) =>
-      updateResource(["users", user.id], {
+    // MutationFn: (user) =>
+    //   updateResource(["users", user.id], {
+    //     ...user,
+    //     isDisabled: !user.isDisabled
+    //   }),
+    mutationFn: (user) => {
+      const payload = {
         ...user,
         isDisabled: !user.isDisabled
-      }),
+      }
+      // eslint-disable-next-line no-console
+      console.log("Payload:", payload)
+
+      return updateResource(["users", user.id], payload)
+    },
 
     onMutate: async (toggledUser) => {
       await queryClient.cancelQueries(["users"])
@@ -55,11 +74,6 @@ export const useToggleUser = () => {
 
       return { previousUsers }
     },
-
-    onError: (err, context) => {
-      queryClient.setQueryData(["users"], context.previousUsers)
-    },
-
     onSuccess: () => {
       queryClient.invalidateQueries(["users"])
     }
@@ -78,13 +92,6 @@ export const useDeleteUser = () => {
 
       return { previousUsers }
     },
-
-    onError: (err, context) => {
-      if (context?.previousUsers) {
-        queryClient.setQueryData(["users"], context.previousUsers)
-      }
-    },
-
     onSuccess: () => {
       queryClient.invalidateQueries(["users"])
     }

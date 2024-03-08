@@ -1,5 +1,6 @@
 import { pageValidator } from "@/utils/validators"
 import PostPreview from "@/web/components/PostPreview"
+import Loader from "@/web/components/ui/Loader"
 import Pagination from "@/web/components/ui/Pagination"
 import config from "@/web/config"
 import { readResource } from "@/web/services/apiClient"
@@ -21,25 +22,26 @@ const IndexPage = (props) => {
   })
   const countPages = Math.ceil(count / config.pagination.limit)
 
-  if (isLoading || !posts) {
-    return <div className="text-center p-32 animate-bounce">Loading...</div>
-  }
-
   return (
     <div className="py-4 flex flex-col gap-16">
-      <ul className="flex flex-col gap-8">
-        {posts.map(({ id, title, content, userId }) => (
-          <li key={id}>
-            <PostPreview
-              id={id}
-              title={title}
-              content={content}
-              userId={userId}
-            />
-          </li>
-        ))}
-      </ul>
-      <Pagination pathname="/" page={page} countPages={countPages} />
+      <Loader isLoading={isLoading || !posts} />
+      {!isLoading && posts && (
+        <>
+          <ul className="flex flex-col gap-8">
+            {posts.map(({ id, title, content, userId }) => (
+              <li key={id}>
+                <PostPreview
+                  id={id}
+                  title={title}
+                  content={content}
+                  userId={userId}
+                />
+              </li>
+            ))}
+          </ul>
+          <Pagination pathname="/" page={page} countPages={countPages} />
+        </>
+      )}
     </div>
   )
 }
