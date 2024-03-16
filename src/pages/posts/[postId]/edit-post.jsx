@@ -1,11 +1,10 @@
 import { postContentValidator, titleValidator } from "@/utils/validators"
-import { useSession } from "@/web/components/SessionContext"
 import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
 import Loader from "@/web/components/ui/Loader"
 import SubmitButton from "@/web/components/ui/SubmitButton"
+import useAuthorization from "@/web/hooks/useAuthorization"
 import { useReadPost, useUpdatePost } from "@/web/hooks/usePostActions"
-import { canEdit } from "@/web/utils/checkRoles"
 import { Formik } from "formik"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
@@ -18,12 +17,15 @@ const validationSchema = object({
 const EditPost = () => {
   const router = useRouter()
   const { postId } = router.query
-  const { session } = useSession()
   const { data, isLoading } = useReadPost(postId)
   const post = data?.data?.result[0]
   const [initialValues, setInitialValues] = useState({
     title: "",
     content: ""
+  })
+  const { AuthorizationAlert } = useAuthorization({
+    userId: post?.userId.toString(),
+    allowedRoles: ["administrator"]
   })
 
   useEffect(() => {
@@ -53,8 +55,8 @@ const EditPost = () => {
   }
 
   return (
-    <>
-      <Loader isLoading={isLoading} />
+    <AuthorizationAlert>
+      <Loader isLoading={isLoading || !post} />
       {!isLoading && (
         <Formik
           initialValues={initialValues}
@@ -75,14 +77,12 @@ const EditPost = () => {
               placeholder="Update your post content"
             />
             <div className="flex justify-center space-x-2">
-              {canEdit(session, post) && (
-                <SubmitButton>Update Post</SubmitButton>
-              )}
+              <SubmitButton>Update Post</SubmitButton>
             </div>
           </Form>
         </Formik>
       )}
-    </>
+    </AuthorizationAlert>
   )
 }
 

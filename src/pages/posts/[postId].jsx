@@ -1,23 +1,25 @@
 import CommentSection from "@/web/components/CommentSection"
-import { useSession } from "@/web/components/SessionContext"
 import Button from "@/web/components/ui/Button"
 import Link from "@/web/components/ui/Link"
 import Loader from "@/web/components/ui/Loader"
+import useAuthorization from "@/web/hooks/useAuthorization"
 import {
   useCreateComment,
   useDeleteComment,
   useUpdateComment
 } from "@/web/hooks/useCommentActions"
 import { useDeletePost, useReadPost } from "@/web/hooks/usePostActions"
-import { canEdit } from "@/web/utils/checkRoles"
 import { useRouter } from "next/router"
 
 const PostPage = () => {
   const router = useRouter()
   const { postId } = router.query
-  const { session } = useSession()
   const { data, isLoading } = useReadPost(postId)
   const post = data?.data?.result[0]
+  const { isAuthorized } = useAuthorization({
+    userId: post?.userId.toString(),
+    allowedRoles: ["administrator"]
+  })
   const deletePostMutation = useDeletePost()
   const createCommentMutation = useCreateComment(postId)
   const updateCommentMutation = useUpdateComment(postId)
@@ -45,7 +47,7 @@ const PostPage = () => {
               {post.author?.username}
             </Link>
           </p>
-          {canEdit(session, post) && (
+          {isAuthorized && (
             <>
               <Button
                 size="sm"

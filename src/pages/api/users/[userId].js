@@ -1,10 +1,10 @@
+import authorize from "@/api/middlewares/authorize"
 import validate from "@/api/middlewares/validate"
 import mw from "@/api/mw"
 import {
   booleanValidator,
   emailValidator,
   idValidator,
-  passwordValidator,
   usernameValidator
 } from "@/utils/validators"
 
@@ -38,11 +38,13 @@ const handle = mw({
       body: {
         username: usernameValidator,
         email: emailValidator,
-        password: passwordValidator,
-        isAuthor: booleanValidator,
-        isAdmin: booleanValidator,
-        isDisabled: booleanValidator
+        isDisabled: booleanValidator.optional()
       }
+    }),
+    authorize({
+      requiredRoles: ["administrator"],
+      checkUserId: true,
+      actionContext: "user"
     }),
     async ({
       send,
@@ -65,6 +67,7 @@ const handle = mw({
         userId: idValidator.required()
       }
     }),
+    authorize({ requiredRoles: ["administrator"] }),
     async ({
       send,
       input: {

@@ -1,3 +1,4 @@
+import authorize from "@/api/middlewares/authorize"
 import validate from "@/api/middlewares/validate"
 import mw from "@/api/mw"
 import {
@@ -14,6 +15,7 @@ const handle = mw({
         content: postContentValidator.required()
       }
     }),
+    authorize({ requiredRoles: ["administrator", "author"] }),
     async ({ send, input: { body }, models: { PostModel } }) => {
       const newPost = await PostModel.query().insertAndFetch(body)
 

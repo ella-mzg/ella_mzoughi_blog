@@ -3,7 +3,7 @@ import UserItem from "@/web/components/UserItem"
 import Loader from "@/web/components/ui/Loader"
 import Pagination from "@/web/components/ui/Pagination"
 import config from "@/web/config"
-// Import { useDeleteUser, useToggleUser } from "@/web/hooks/useUserActions"
+import useAuthorization from "@/web/hooks/useAuthorization"
 import { readResource } from "@/web/services/apiClient"
 import { useQuery } from "@tanstack/react-query"
 
@@ -21,65 +21,31 @@ const UsersPage = ({ page }) => {
     queryFn: () => readResource("users", { params: { page } })
   })
   const countPages = Math.ceil(count / config.pagination.limit)
+  const { AuthorizationAlert } = useAuthorization({
+    allowedRoles: ["administrator"]
+  })
 
   return (
-    <div className="py-4 flex flex-col gap-16">
-      <Loader isLoading={isLoading} />
-      {!isLoading && users && (
-        <>
-          <ul className="flex flex-col gap-8">
-            {users
-              .sort((a, b) => a.id - b.id)
-              .map((user) => (
-                <li key={user.id}>
-                  <UserItem user={user} />
-                </li>
-              ))}
-          </ul>
-          <Pagination pathname="/users" page={page} countPages={countPages} />
-        </>
-      )}
-    </div>
+    <AuthorizationAlert>
+      <div className="py-4 flex flex-col gap-16">
+        <Loader isLoading={isLoading} />
+        {!isLoading && users && (
+          <>
+            <ul className="flex flex-col gap-8">
+              {users
+                .sort((a, b) => a.id - b.id)
+                .map((user) => (
+                  <li key={user.id}>
+                    <UserItem user={user} />
+                  </li>
+                ))}
+            </ul>
+            <Pagination pathname="/users" page={page} countPages={countPages} />
+          </>
+        )}
+      </div>
+    </AuthorizationAlert>
   )
 }
 
 export default UsersPage
-// Const UsersPage = (props) => {
-//   const { page } = props
-//   const toggleUserMutation = useToggleUser()
-//   const deleteUserMutation = useDeleteUser()
-//   const {
-//     isLoading,
-//     data: { data: { result: users, meta: { count } = {} } = {} } = {}
-//   } = useQuery({
-//     queryKey: ["users", page],
-//     queryFn: () => readResource("users", { params: { page } })
-//   })
-//   const countPages = Math.ceil(count / config.pagination.limit)
-
-//   return (
-//     <div className="py-4 flex flex-col gap-16">
-//       <Loader isLoading={isLoading || !users} />
-//       {!isLoading && users && (
-//         <>
-//           <ul className="flex flex-col gap-8">
-//             {users
-//               .sort((a, b) => a.id - b.id)
-//               .map((user) => (
-//                 <li key={user.id}>
-//                   <UserItem
-//                     user={user}
-//                     toggleUser={toggleUserMutation}
-//                     deleteUser={deleteUserMutation}
-//                   />
-//                 </li>
-//               ))}
-//           </ul>
-//           <Pagination pathname="/users" page={page} countPages={countPages} />
-//         </>
-//       )}
-//     </div>
-//   )
-// }
-
-// export default UsersPage

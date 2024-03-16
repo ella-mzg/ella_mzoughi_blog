@@ -1,3 +1,4 @@
+import authorize from "@/api/middlewares/authorize"
 import validate from "@/api/middlewares/validate"
 import mw from "@/api/mw"
 import {
@@ -37,6 +38,11 @@ const handle = mw({
         content: postContentValidator
       }
     }),
+    authorize({
+      requiredRoles: ["administrator"],
+      checkUserId: true,
+      actionContext: "post"
+    }),
     async ({
       send,
       input: {
@@ -57,6 +63,11 @@ const handle = mw({
       query: {
         postId: idValidator.required()
       }
+    }),
+    authorize({
+      requiredRoles: ["administrator"],
+      checkUserId: true,
+      actionContext: "post"
     }),
     async ({
       send,

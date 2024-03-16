@@ -3,6 +3,7 @@ import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
 import Loader from "@/web/components/ui/Loader"
 import SubmitButton from "@/web/components/ui/SubmitButton"
+import useAuthorization from "@/web/hooks/useAuthorization"
 import { useReadUser, useUpdateUser } from "@/web/hooks/useUserActions"
 import { Formik } from "formik"
 import { useRouter } from "next/router"
@@ -10,8 +11,8 @@ import { useEffect, useState } from "react"
 import { object } from "yup"
 
 const validationSchema = object({
-  username: usernameValidator.required().label("Title"),
-  email: emailValidator.required().label("Content")
+  username: usernameValidator.required().label("Username"),
+  email: emailValidator.required().label("E-mail")
 })
 const EditProfile = () => {
   const router = useRouter()
@@ -21,6 +22,10 @@ const EditProfile = () => {
   const [initialValues, setInitialValues] = useState({
     username: "",
     email: ""
+  })
+  const { AuthorizationAlert } = useAuthorization({
+    userId,
+    allowedRoles: ["administrator"]
   })
 
   useEffect(() => {
@@ -38,7 +43,7 @@ const EditProfile = () => {
     if (isSuccess) {
       router.push(`/users/${userId}`)
     }
-  }, [isSuccess, router, userId])
+  }, [isSuccess, userId, router])
 
   const handleSubmit = async (values) => {
     try {
@@ -50,9 +55,9 @@ const EditProfile = () => {
   }
 
   return (
-    <>
+    <AuthorizationAlert>
       <Loader isLoading={isLoading || !user} />
-      {!isLoading && (
+      {!isLoading && user && (
         <Formik
           initialValues={initialValues}
           enableReinitialize
@@ -77,7 +82,7 @@ const EditProfile = () => {
           </Form>
         </Formik>
       )}
-    </>
+    </AuthorizationAlert>
   )
 }
 

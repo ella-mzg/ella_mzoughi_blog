@@ -26,21 +26,22 @@ const handle = mw({
       },
       models: { UserModel }
     }) => {
+      const normalizedEmail = email.toLowerCase()
       const usernameExists = await UserModel.query().findOne({ username })
 
       if (usernameExists) {
         await sleep(AVERAGE_PASSWORD_HASHING_DURATION)
-
         send(true)
 
         return
       }
 
-      const emailExists = await UserModel.query().findOne({ email })
+      const emailExists = await UserModel.query().findOne({
+        email: normalizedEmail
+      })
 
       if (emailExists) {
         await sleep(AVERAGE_PASSWORD_HASHING_DURATION)
-
         send(true)
 
         return

@@ -5,21 +5,12 @@ import {
 } from "@/web/services/apiClient"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-export const useReadPost = (postId) => {
-  const { isLoading, isError, data, error } = useQuery({
+export const useReadPost = (postId) =>
+  useQuery({
     queryKey: ["post", postId],
     queryFn: () => readResource(["posts", postId]),
-    enabled: Boolean(postId),
-    initialData: () => ({ data: { result: [{}] } })
+    enabled: Boolean(postId)
   })
-
-  return {
-    post: data?.data?.result?.[0] || {},
-    isLoading,
-    isError,
-    error
-  }
-}
 
 export const useUpdatePost = () => {
   const queryClient = useQueryClient()
@@ -27,27 +18,24 @@ export const useUpdatePost = () => {
   return useMutation({
     mutationFn: ({ postId, newData }) =>
       updateResource(["posts", postId], newData),
+
     onMutate: async ({ postId, newData }) => {
       await queryClient.cancelQueries(["post", postId])
-      const previousPost = queryClient.getQueryData(["post", postId])
+      const previousPostData = queryClient.getQueryData(["post", postId])
 
-      queryClient.setQueryData(["post", postId], (oldQueryData) => ({
-        ...oldQueryData,
+      queryClient.setQueryData(["post", postId], (oldData) => ({
+        ...oldData,
         data: {
-          ...oldQueryData.data,
-          result: [{ ...oldQueryData.data.result[0], ...newData }]
+          ...oldData.data,
+          ...newData
         }
       }))
 
-      return { previousPost }
+      return { previousPostData, postId }
     },
-    onError: (err, { postId }, context) => {
-      queryClient.setQueryData(["post", postId], context.previousPost)
-    },
-    onSuccess: ({ postId }) => {
-      if (postId) {
-        queryClient.invalidateQueries(["post", postId])
-      }
+
+    onSuccess: (_, { postId }) => {
+      queryClient.invalidateQueries(["post", postId])
     }
   })
 }

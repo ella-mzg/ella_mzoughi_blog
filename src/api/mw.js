@@ -1,5 +1,3 @@
-/* eslint-disable no-warning-comments */
-/* eslint-disable no-inline-comments */
 import { createContext } from "@/api/createContext"
 import {
   HttpForbiddenError,
@@ -13,6 +11,7 @@ import { JsonWebTokenError } from "jsonwebtoken"
 import { randomUUID } from "node:crypto"
 import { NotFoundError } from "objection"
 
+// eslint-disable-next-line no-unused-vars
 const handleError = (err, { res, logger }) => {
   const error = (() => {
     if (err instanceof JsonWebTokenError) {
@@ -31,8 +30,7 @@ const handleError = (err, { res, logger }) => {
       .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .send({ error: "Something went wrong." })
 
-    // eslint-disable-next-line line-comment-position
-    // logger.info(error) // Todo: logger.error
+    // Logger.info(error)
     // eslint-disable-next-line no-console
     console.log(error)
 

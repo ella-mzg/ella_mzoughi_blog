@@ -1,22 +1,23 @@
-import { emailValidator, passwordValidator } from "@/utils/validators"
 import { useSession } from "@/web/components/SessionContext"
 import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
+import Loader from "@/web/components/ui/Loader"
 import ResponseError from "@/web/components/ui/ResponseError"
 import SubmitButton from "@/web/components/ui/SubmitButton"
 import { createResource } from "@/web/services/apiClient"
 import { useMutation } from "@tanstack/react-query"
 import { Formik } from "formik"
 import { useRouter } from "next/router"
-import { object } from "yup"
+import { useState } from "react"
+import { object, string } from "yup"
 
 const initialValues = {
   email: "",
   password: ""
 }
 const validationSchema = object({
-  email: emailValidator.required().label("E-mail"),
-  password: passwordValidator.required().label("Password")
+  email: string().required().label("E-mail"),
+  password: string().required().label("Password")
 })
 const SignInPage = () => {
   const router = useRouter()
@@ -24,7 +25,10 @@ const SignInPage = () => {
   const { mutateAsync, error } = useMutation({
     mutationFn: (data) => createResource("sessions", data)
   })
+  const [isLoading, setIsLoading] = useState(false)
   const handleSubmit = async ({ email, password }) => {
+    setIsLoading(true)
+
     const {
       data: {
         result: [jwt]
@@ -61,11 +65,9 @@ const SignInPage = () => {
           </div>
         </Form>
       </Formik>
+      <Loader isLoading={isLoading} />
     </>
   )
 }
 
 export default SignInPage
-
-// eslint-disable-next-line no-warning-comments
-// TODO: add useCallBacks

@@ -1,6 +1,5 @@
 import config from "@/api/config"
 import { HttpAuthenticationError } from "@/api/errors"
-import auth from "@/api/middlewares/auth"
 import validate from "@/api/middlewares/validate"
 import mw from "@/api/mw"
 import genCookies from "@/api/utils/genCookies"
@@ -29,7 +28,8 @@ const handle = mw({
       },
       models: { UserModel }
     }) => {
-      const user = await UserModel.query().findOne({ email })
+      const normalizedEmail = email.toLowerCase()
+      const user = await UserModel.query().findOne({ email: normalizedEmail })
 
       if (!user) {
         await sleep(AVERAGE_PASSWORD_HASHING_DURATION)
@@ -47,7 +47,8 @@ const handle = mw({
         {
           payload: {
             user: {
-              id: user.id
+              id: user.id,
+              role: user.role
             }
           }
         },
@@ -76,7 +77,6 @@ const handle = mw({
     }
   ],
   DELETE: [
-    auth,
     ({ send, res }) => {
       res.setHeader(
         "set-cookie",
