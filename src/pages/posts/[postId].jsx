@@ -44,17 +44,19 @@ const PostPage = () => {
   return (
     <>
       {!isLoading && post ? (
-        <article className="p-4 bg-white rounded shadow-md">
-          <h1 className="text-2xl font-bold mb-2">{post.title}</h1>
-          <p className="text-lg mt-4 mb-4">{post.content}</p>
-          <p className="text-sm text-gray-500 mb-6">
-            Author:
+        <article className="p-4 bg-white rounded shadow-md mx-auto mt-5 mb-5 max-w-4xl">
+          <h1 className="text-2xl font-semibold text-gray-800 mb-5">
+            {post.title}
+          </h1>
+          <p className=" mt-4 mb-4">{post.content}</p>
+          <p className="text-sm text-gray-500 mb-5">
+            Author:{" "}
             <Link href={`/users/${post?.author?.id}`}>
               {post.author?.username}
             </Link>
           </p>
           {isAuthorized && (
-            <>
+            <div className="flex justify-center space-x-2 mt-2">
               <Button
                 size="sm"
                 onClick={() => router.push(`/posts/${post.id}/edit-post`)}>
@@ -63,7 +65,7 @@ const PostPage = () => {
               <Button size="sm" onClick={handleDelete}>
                 Delete Post
               </Button>
-            </>
+            </div>
           )}
           <CommentSection
             comments={post.comments}

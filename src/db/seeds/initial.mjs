@@ -35,7 +35,7 @@ export const seed = async (db) => {
   )
   const insertedUsers = await db("users").insert(users).returning("*")
   const posts = [...new Array(10)].map(() => ({
-    title: faker.lorem.sentence(),
+    title: faker.lorem.sentence({ min: 2, max: 5 }),
     content: faker.lorem.paragraph(),
     userId:
       insertedUsers[faker.number.int({ min: 0, max: insertedUsers.length - 1 })]

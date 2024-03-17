@@ -15,7 +15,9 @@ const CommentSection = ({
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [sortedComments, setSortedComments] = useState([])
   useEffect(() => {
-    const sorted = [...comments].sort((a, b) => a.id - b.id)
+    const sorted = [...comments].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    )
     setSortedComments(sorted)
   }, [comments])
 
@@ -44,13 +46,12 @@ const CommentSection = ({
   )
 
   return (
-    <div>
+    <div className="bg-slate-100 p-4 rounded mt-10">
       <CommentForm
         initialValues={newCommentInitialValues}
         onSubmit={handleCreateComment}
-        placeholder="Add a comment..."
       />
-      <h3>Comments</h3>
+      <h2 className="text-xl font-semibold text-gray-800 mb-5">Comments:</h2>
       {sortedComments.map((comment) => (
         <CommentItem
           key={comment.id}
@@ -61,7 +62,9 @@ const CommentSection = ({
           onSubmit={(values) => handleUpdateComment(values)}
         />
       ))}
-      {sortedComments.length === 0 && <p>No comments yet.</p>}
+      {sortedComments.length === 0 && (
+        <p className="text-gray-600 italic">No comments yet.</p>
+      )}
     </div>
   )
 }

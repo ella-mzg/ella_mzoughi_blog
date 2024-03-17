@@ -33,7 +33,7 @@ const Dashboard = ({ userId }) => {
 
   if (hasError) {
     return (
-      <div className="text-center text-red-500">Error loading user stats</div>
+      <div className="text-center text-red-500">Error loading user stats.</div>
     )
   }
 

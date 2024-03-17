@@ -1,3 +1,7 @@
+# Full Stack DevSecOps Blog
+
+Adhere to these steps for project initialization and execution.
+
 ### 1. Set up the environment variables
 
 Create a .env.local file at the root of the project and add the following configurations:

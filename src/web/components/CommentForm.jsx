@@ -15,7 +15,7 @@ const CommentForm = ({ initialValues, onSubmit }) => {
   const { session } = useSession()
 
   return (
-    <div className={clsx("bg-white shadow rounded-lg p-4 mb-4")}>
+    <div className={clsx("bg-white p-4 mt-6 mb-4")}>
       {session ? (
         <Formik
           initialValues={initialValues}
@@ -26,11 +26,13 @@ const CommentForm = ({ initialValues, onSubmit }) => {
               <FormField
                 name="content"
                 as="textarea"
-                placeholder="Write your comment..."
+                placeholder="Add a comment..."
               />
-              <Button type="submit" disabled={isSubmitting}>
-                {initialValues.id ? "Save Changes" : "Post Comment"}
-              </Button>
+              <div className="flex justify-center mt-4">
+                <Button size="sm" type="submit" disabled={isSubmitting}>
+                  {initialValues.id ? "Save Changes" : "Post Comment"}
+                </Button>
+              </div>
             </Form>
           )}
         </Formik>
