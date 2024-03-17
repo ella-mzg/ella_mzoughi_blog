@@ -17,11 +17,7 @@ const getUrl = (resource) => {
     return `/api/${resource}`
   }
 
-  const [resourceName, resourceId] = resource
-
-  return resourceId
-    ? `/api/${resourceName}/${resourceId}`
-    : `/api/${resourceName}`
+  return `/api/${resource.join("/")}`
 }
 const makeResourceAction = (method, hasData = true) =>
   hasData

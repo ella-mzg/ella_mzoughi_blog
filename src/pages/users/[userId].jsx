@@ -1,3 +1,4 @@
+import Dashboard from "@/web/components/Dashboard"
 import Button from "@/web/components/ui/Button"
 import Loader from "@/web/components/ui/Loader"
 import useAuthorization from "@/web/hooks/useAuthorization"
@@ -14,6 +15,7 @@ const UserProfile = () => {
     userId,
     allowedRoles: ["administrator"]
   })
+  const sortedPosts = user?.posts?.sort((a, b) => b.id - a.id)
 
   return (
     <>
@@ -29,10 +31,13 @@ const UserProfile = () => {
               Edit Profile
             </Button>
           )}
+
+          <Dashboard userId={user.id} />
+
           {user.posts && user.posts.length > 0 && (
             <>
               <h2 className="text-lg font-bold mb-4 mt-4">Posts:</h2>
-              {user.posts.map((post, index) => (
+              {sortedPosts.map((post, index) => (
                 <div key={index} className="mb-4 p-3 rounded shadow bg-gray-50">
                   <Link
                     href={`/posts/${post.id}`}

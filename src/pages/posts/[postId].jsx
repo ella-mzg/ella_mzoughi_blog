@@ -1,4 +1,5 @@
 import CommentSection from "@/web/components/CommentSection"
+import { useSession } from "@/web/components/SessionContext"
 import Button from "@/web/components/ui/Button"
 import Link from "@/web/components/ui/Link"
 import Loader from "@/web/components/ui/Loader"
@@ -8,7 +9,11 @@ import {
   useDeleteComment,
   useUpdateComment
 } from "@/web/hooks/useCommentActions"
-import { useDeletePost, useReadPost } from "@/web/hooks/usePostActions"
+import {
+  useDeletePost,
+  useIncrementViewCount,
+  useReadPost
+} from "@/web/hooks/usePostActions"
 import { useRouter } from "next/router"
 
 const PostPage = () => {
@@ -16,6 +21,8 @@ const PostPage = () => {
   const { postId } = router.query
   const { data, isLoading } = useReadPost(postId)
   const post = data?.data?.result[0]
+  const { session } = useSession()
+  const userId = session?.user?.id || "guest"
   const { isAuthorized } = useAuthorization({
     userId: post?.userId.toString(),
     allowedRoles: ["administrator"]
@@ -32,18 +39,17 @@ const PostPage = () => {
     })
   }
 
+  useIncrementViewCount(postId, userId)
+
   return (
     <>
-      <Loader isLoading={isLoading || !post} />
-      {!isLoading && (
+      {!isLoading && post ? (
         <article className="p-4 bg-white rounded shadow-md">
           <h1 className="text-2xl font-bold mb-2">{post.title}</h1>
           <p className="text-lg mt-4 mb-4">{post.content}</p>
           <p className="text-sm text-gray-500 mb-6">
             Author:
-            <Link
-              href={`/users/${post?.author?.id}`}
-              className="hover:text-pink-500">
+            <Link href={`/users/${post?.author?.id}`}>
               {post.author?.username}
             </Link>
           </p>
@@ -66,6 +72,8 @@ const PostPage = () => {
             deleteComment={deleteCommentMutation}
           />
         </article>
+      ) : (
+        <Loader isLoading={true} />
       )}
     </>
   )

@@ -38,6 +38,8 @@ const handle = mw({
       }
 
       if (user.isDisabled) {
+        await sleep(AVERAGE_PASSWORD_HASHING_DURATION)
+
         throw new HttpAuthenticationError("Your account is disabled.")
       }
 

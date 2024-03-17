@@ -1,6 +1,8 @@
 import validate from "@/api/middlewares/validate"
 import mw from "@/api/mw"
 import hashPassword from "@/db/hashPassword"
+import { AVERAGE_PASSWORD_HASHING_DURATION } from "@/pages/api/constants"
+import sleep from "@/utils/sleep"
 import {
   emailValidator,
   pageValidator,
@@ -28,6 +30,8 @@ const handle = mw({
       const usernameExists = await UserModel.query().findOne({ username })
 
       if (usernameExists) {
+        await sleep(AVERAGE_PASSWORD_HASHING_DURATION)
+
         throw new Error("Something went wrong.")
       }
 
@@ -36,6 +40,8 @@ const handle = mw({
       })
 
       if (emailExists) {
+        await sleep(AVERAGE_PASSWORD_HASHING_DURATION)
+
         throw new Error("Something went wrong.")
       }
 
