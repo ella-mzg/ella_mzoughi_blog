@@ -20,7 +20,7 @@ const PostPage = () => {
   const router = useRouter()
   const { postId } = router.query
   const { data, isLoading } = useReadPost(postId)
-  const post = data?.data?.result[0]
+  const [post] = data?.data?.result || []
   const { session } = useSession()
   const userId = session?.user?.id || "guest"
   const { isAuthorized } = useAuthorization({

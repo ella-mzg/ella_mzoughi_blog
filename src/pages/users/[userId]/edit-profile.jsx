@@ -18,11 +18,12 @@ const EditProfile = () => {
   const router = useRouter()
   const { userId } = router.query
   const { data, isLoading } = useReadUser(userId)
-  const user = data?.data?.result[0]
+  const [user] = data?.data?.result || []
   const [initialValues, setInitialValues] = useState({
     username: "",
     email: ""
   })
+  const [error, setError] = useState("")
   const { AuthorizationAlert } = useAuthorization({
     userId,
     allowedRoles: ["administrator"]
@@ -48,9 +49,8 @@ const EditProfile = () => {
   const handleSubmit = async (values) => {
     try {
       await updateUser({ userId, newData: values })
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to update user:", error)
+    } catch (updateError) {
+      setError("Failed to update user.")
     }
   }
 
@@ -58,29 +58,32 @@ const EditProfile = () => {
     <AuthorizationAlert>
       <Loader isLoading={isLoading || !user} />
       {!isLoading && user && (
-        <Formik
-          initialValues={initialValues}
-          enableReinitialize
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}>
-          <Form>
-            <FormField
-              name="username"
-              type="text"
-              label="Username"
-              placeholder="Update your username"
-            />
-            <FormField
-              name="email"
-              type="email"
-              label="E-mail"
-              placeholder="Update your e-mail"
-            />
-            <div className="flex justify-center">
-              <SubmitButton>Update Profile</SubmitButton>
-            </div>
-          </Form>
-        </Formik>
+        <>
+          {error && <p className="text-red-500">{error}</p>}
+          <Formik
+            initialValues={initialValues}
+            enableReinitialize
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}>
+            <Form>
+              <FormField
+                name="username"
+                type="text"
+                label="Username"
+                placeholder="Update your username"
+              />
+              <FormField
+                name="email"
+                type="email"
+                label="E-mail"
+                placeholder="Update your e-mail"
+              />
+              <div className="flex justify-center">
+                <SubmitButton>Update Profile</SubmitButton>
+              </div>
+            </Form>
+          </Formik>
+        </>
       )}
     </AuthorizationAlert>
   )

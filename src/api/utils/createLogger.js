@@ -3,9 +3,7 @@ import { merge } from "@corex/deepmerge"
 import { writeFile } from "node:fs/promises"
 
 export const SCOPES = {
-  DEBUG: "debug",
-  INFO: "info",
-  ERROR: "error"
+  INFO: "info"
 }
 const createLogger =
   (scope, defaultData = {}) =>
@@ -26,8 +24,6 @@ const createLogger =
     })
   }
 
-export const logDebug = createLogger(SCOPES.DEBUG)
 export const logInfo = createLogger(SCOPES.INFO)
-export const logError = createLogger(SCOPES.ERROR)
 
 export default createLogger

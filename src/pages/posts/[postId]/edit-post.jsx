@@ -18,11 +18,12 @@ const EditPost = () => {
   const router = useRouter()
   const { postId } = router.query
   const { data, isLoading } = useReadPost(postId)
-  const post = data?.data?.result[0]
+  const [post] = data?.data?.result || []
   const [initialValues, setInitialValues] = useState({
     title: "",
     content: ""
   })
+  const [error, setError] = useState("")
   const { AuthorizationAlert } = useAuthorization({
     userId: post?.userId.toString(),
     allowedRoles: ["administrator"]
@@ -48,39 +49,41 @@ const EditPost = () => {
   const handleSubmit = async (values) => {
     try {
       await updatePost({ postId, newData: values })
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to update post:", error)
+    } catch (updateError) {
+      setError("Failed to update post.")
     }
   }
 
   return (
     <AuthorizationAlert>
       <Loader isLoading={isLoading || !post} />
-      {!isLoading && (
-        <Formik
-          initialValues={initialValues}
-          enableReinitialize
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}>
-          <Form>
-            <FormField
-              name="title"
-              type="text"
-              label="Title"
-              placeholder="Update your post title"
-            />
-            <FormField
-              name="content"
-              as="textarea"
-              label="Content"
-              placeholder="Update your post content"
-            />
-            <div className="flex justify-center space-x-2">
-              <SubmitButton>Update Post</SubmitButton>
-            </div>
-          </Form>
-        </Formik>
+      {!isLoading && post && (
+        <>
+          {error && <p className="text-red-500">{error}</p>}
+          <Formik
+            initialValues={initialValues}
+            enableReinitialize
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}>
+            <Form>
+              <FormField
+                name="title"
+                type="text"
+                label="Title"
+                placeholder="Update your post title"
+              />
+              <FormField
+                name="content"
+                as="textarea"
+                label="Content"
+                placeholder="Update your post content"
+              />
+              <div className="flex justify-center space-x-2">
+                <SubmitButton>Update Post</SubmitButton>
+              </div>
+            </Form>
+          </Formik>
+        </>
       )}
     </AuthorizationAlert>
   )

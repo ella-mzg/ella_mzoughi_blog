@@ -46,12 +46,6 @@ export const useIncrementViewCount = (postId, userId) => {
 
       setTimeout(() => {
         createResource(["posts", postId, "views"], {})
-          // eslint-disable-next-line no-console
-          .then(() => console.log("View count incremented"))
-          .catch((error) =>
-            // eslint-disable-next-line no-console
-            console.error("Error incrementing view count", error)
-          )
       }, 500)
     }
   }, [postId, userId])

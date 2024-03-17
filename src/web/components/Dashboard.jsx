@@ -23,9 +23,9 @@ const Dashboard = ({ userId }) => {
   } = useUserViewCount(userId)
   const isLoading = postLoading || commentLoading || viewLoading
   const hasError = postError || commentError || viewError
-  const postCount = postData?.result[0]?.count || 0
-  const commentCount = commentData?.result[0]?.count || 0
-  const viewCount = viewData?.result[0]?.count || 0
+  const [{ count: postCount } = { count: 0 }] = postData?.result || []
+  const [{ count: commentCount } = { count: 0 }] = commentData?.result || []
+  const [{ count: viewCount } = { count: 0 }] = viewData?.result || []
 
   if (isLoading) {
     return <Loader isLoading={isLoading} />

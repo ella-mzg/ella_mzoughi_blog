@@ -9,9 +9,7 @@ const validationSchema = object({
   }).noUnknown(),
   logger: object({
     paths: object({
-      debug: string().required(),
-      info: string().required(),
-      error: string().required()
+      info: string().required()
     }).noUnknown()
   }).noUnknown(),
   security: object({
@@ -30,9 +28,7 @@ try {
       db: knexfile,
       logger: {
         paths: {
-          debug: process.env.LOGGER__PATHS__DEBUG,
-          info: process.env.LOGGER__PATHS__INFO,
-          error: process.env.LOGGER__PATHS__ERROR
+          info: process.env.LOGGER__PATHS__INFO
         }
       },
       security: {

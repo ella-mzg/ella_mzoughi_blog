@@ -11,7 +11,6 @@ import { JsonWebTokenError } from "jsonwebtoken"
 import { randomUUID } from "node:crypto"
 import { NotFoundError } from "objection"
 
-// eslint-disable-next-line no-unused-vars
 const handleError = (err, { res, logger }) => {
   const error = (() => {
     if (err instanceof JsonWebTokenError) {
@@ -30,9 +29,7 @@ const handleError = (err, { res, logger }) => {
       .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .send({ error: "Something went wrong." })
 
-    // Logger.info(error)
-    // eslint-disable-next-line no-console
-    console.log(error)
+    logger.info(error)
 
     return
   }
@@ -46,9 +43,7 @@ const handleError = (err, { res, logger }) => {
 const mw = (methodHandlers) => async (req, res) => {
   const requestId = randomUUID()
   const logger = {
-    info: createLogger(SCOPES.INFO),
-    debug: createLogger(SCOPES.DEBUG),
-    error: createLogger(SCOPES.ERROR)
+    info: createLogger(SCOPES.INFO)
   }
   logger.info({ type: "HTTP", requestId, method: req.method, url: req.url })
 
