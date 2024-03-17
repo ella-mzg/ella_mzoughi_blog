@@ -65,7 +65,7 @@ const SignInPage = () => {
           </div>
         </Form>
       </Formik>
-      <Loader isLoading={isLoading} />
+      <Loader isLoading={isLoading && !error} />
     </>
   )
 }

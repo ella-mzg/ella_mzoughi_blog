@@ -37,6 +37,10 @@ const handle = mw({
         throw new HttpAuthenticationError()
       }
 
+      if (user.isDisabled) {
+        throw new HttpAuthenticationError("Your account is disabled.")
+      }
+
       const [passwordHash] = await hashPassword(password, user.passwordSalt)
 
       if (passwordHash !== user.passwordHash) {

@@ -7,6 +7,7 @@ import Alert from "@/web/components/ui/Alert"
 import Form from "@/web/components/ui/Form"
 import FormField from "@/web/components/ui/FormField"
 import Loader from "@/web/components/ui/Loader"
+import ResponseError from "@/web/components/ui/ResponseError"
 import SubmitButton from "@/web/components/ui/SubmitButton"
 import { createResource } from "@/web/services/apiClient"
 import { useMutation } from "@tanstack/react-query"
@@ -25,7 +26,7 @@ const validationSchema = object({
   password: passwordValidator.required().label("Password")
 })
 const SignUpPage = () => {
-  const { mutateAsync, isSuccess } = useMutation({
+  const { mutateAsync, error, isSuccess } = useMutation({
     mutationFn: (data) => createResource("users", data)
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -41,6 +42,7 @@ const SignUpPage = () => {
 
   return (
     <>
+      <ResponseError error={error} />
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -69,7 +71,7 @@ const SignUpPage = () => {
           </div>
         </Form>
       </Formik>
-      <Loader isLoading={isLoading} />
+      <Loader isLoading={isLoading && !error} />
     </>
   )
 }
