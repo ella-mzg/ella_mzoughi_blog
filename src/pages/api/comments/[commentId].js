@@ -1,3 +1,4 @@
+import authorize from "@/api/middlewares/authorize"
 import validate from "@/api/middlewares/validate"
 import mw from "@/api/mw"
 import { commentContentValidator, idValidator } from "@/utils/validators"
@@ -23,11 +24,45 @@ const handle = mw({
       send(comments)
     }
   ],
+  PATCH: [
+    validate({
+      query: {
+        commentId: idValidator.required()
+      },
+      body: {
+        content: commentContentValidator.required()
+      }
+    }),
+    authorize({
+      requiredRoles: ["administrator"],
+      checkUserId: true,
+      actionContext: "comment"
+    }),
+    async ({
+      send,
+      input: {
+        query: { commentId },
+        body: { content }
+      },
+      models: { CommentModel }
+    }) => {
+      const updatedComment = await CommentModel.query()
+        .patchAndFetchById(commentId, { content })
+        .throwIfNotFound()
+
+      send(updatedComment)
+    }
+  ],
   DELETE: [
     validate({
       query: {
         commentId: idValidator.required()
       }
+    }),
+    authorize({
+      requiredRoles: ["administrator"],
+      checkUserId: true,
+      actionContext: "comment"
     }),
     async ({
       send,
@@ -43,30 +78,6 @@ const handle = mw({
       await comment.$query().delete()
 
       send(comment)
-    }
-  ],
-  PATCH: [
-    validate({
-      query: {
-        commentId: idValidator.required()
-      },
-      body: {
-        content: commentContentValidator.required()
-      }
-    }),
-    async ({
-      send,
-      input: {
-        query: { commentId },
-        body: { content }
-      },
-      models: { CommentModel }
-    }) => {
-      const updatedComment = await CommentModel.query()
-        .patchAndFetchById(commentId, { content })
-        .throwIfNotFound()
-
-      send(updatedComment)
     }
   ]
 })

@@ -1,9 +1,9 @@
 import CommentForm from "@/web/components/CommentForm"
 import CommentItem from "@/web/components/CommentItem"
 import { useSession } from "@/web/components/SessionContext"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-const newCommentInitialValues = { title: "", content: "" }
+const newCommentInitialValues = { content: "" }
 const CommentSection = ({
   comments = [],
   createComment,
@@ -13,6 +13,12 @@ const CommentSection = ({
   const { session } = useSession()
   const authorId = session?.user?.id
   const [editingCommentId, setEditingCommentId] = useState(null)
+  const [sortedComments, setSortedComments] = useState([])
+  useEffect(() => {
+    const sorted = [...comments].sort((a, b) => a.id - b.id)
+    setSortedComments(sorted)
+  }, [comments])
+
   const handleCreateComment = useCallback(
     async (values, { resetForm }) => {
       await createComment.mutateAsync({ ...values, userId: authorId })
@@ -39,23 +45,23 @@ const CommentSection = ({
 
   return (
     <div>
-      <h3>Comments</h3>
       <CommentForm
         initialValues={newCommentInitialValues}
         onSubmit={handleCreateComment}
-        placeholder="Write a new comment..."
+        placeholder="Add a comment..."
       />
-      {comments.map((comment) => (
+      <h3>Comments</h3>
+      {sortedComments.map((comment) => (
         <CommentItem
           key={comment.id}
           comment={comment}
           isEditing={editingCommentId === comment.id}
-          onEdit={setEditingCommentId}
+          onEdit={() => setEditingCommentId(comment.id)}
           onDelete={handleDelete}
           onSubmit={(values) => handleUpdateComment(values)}
         />
       ))}
-      {comments.length === 0 && <p>No comments yet.</p>}
+      {sortedComments.length === 0 && <p>No comments yet.</p>}
     </div>
   )
 }

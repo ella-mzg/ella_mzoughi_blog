@@ -24,21 +24,20 @@ const UsersPage = ({ page }) => {
   const { AuthorizationAlert } = useAuthorization({
     allowedRoles: ["administrator"]
   })
+  const sortedUsers = users?.sort((a, b) => a.id - b.id) || []
 
   return (
     <AuthorizationAlert>
       <div className="py-4 flex flex-col gap-16">
-        <Loader isLoading={isLoading} />
-        {!isLoading && users && (
+        <Loader isLoading={isLoading || !users} />
+        {!isLoading && (
           <>
             <ul className="flex flex-col gap-8">
-              {users
-                .sort((a, b) => a.id - b.id)
-                .map((user) => (
-                  <li key={user.id}>
-                    <UserItem user={user} />
-                  </li>
-                ))}
+              {sortedUsers.map((user) => (
+                <li key={user.id}>
+                  <UserItem user={user} />
+                </li>
+              ))}
             </ul>
             <Pagination pathname="/users" page={page} countPages={countPages} />
           </>
