@@ -1,9 +1,17 @@
 import {
   createResource,
   deleteResource,
+  readResource,
   updateResource
 } from "@/web/services/apiClient"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+
+export const useReadComment = (commentId) =>
+  useQuery({
+    queryKey: ["comment", commentId],
+    queryFn: () => readResource(["comments", commentId]),
+    enabled: Boolean(commentId)
+  })
 
 export const useCreateComment = (postId) => {
   const queryClient = useQueryClient()
@@ -17,25 +25,25 @@ export const useCreateComment = (postId) => {
   })
 }
 
-export const useUpdateComment = (postId) => {
+export const useUpdateComment = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ commentId, content }) =>
-      updateResource(["comments", commentId], { content }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["post", postId])
+    mutationFn: ({ commentId, newData }) =>
+      updateResource(["comments", commentId], newData),
+    onSuccess: (_, { commentId }) => {
+      queryClient.invalidateQueries(["comment", commentId])
     }
   })
 }
 
-export const useDeleteComment = (postId) => {
+export const useDeleteComment = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (commentId) => deleteResource(["comments", commentId]),
     onSuccess: () => {
-      queryClient.invalidateQueries(["post", postId])
+      queryClient.invalidateQueries(["comments"])
     }
   })
 }

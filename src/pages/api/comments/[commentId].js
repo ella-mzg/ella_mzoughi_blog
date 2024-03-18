@@ -7,21 +7,21 @@ const handle = mw({
   GET: [
     validate({
       query: {
-        postId: idValidator.required()
+        commentId: idValidator.required()
       }
     }),
     async ({
       send,
       input: {
-        query: { postId }
+        query: { commentId }
       },
       models: { CommentModel }
     }) => {
-      const comments = await CommentModel.query()
-        .where("postId", postId)
-        .withGraphFetched("[author]")
+      const comment = await CommentModel.query()
+        .findById(commentId)
+        .withGraphFetched("author")
         .throwIfNotFound()
-      send(comments)
+      send(comment)
     }
   ],
   PATCH: [

@@ -4,11 +4,7 @@ import Button from "@/web/components/ui/Button"
 import Link from "@/web/components/ui/Link"
 import Loader from "@/web/components/ui/Loader"
 import useAuthorization from "@/web/hooks/useAuthorization"
-import {
-  useCreateComment,
-  useDeleteComment,
-  useUpdateComment
-} from "@/web/hooks/useCommentActions"
+import { useCreateComment } from "@/web/hooks/useCommentActions"
 import {
   useDeletePost,
   useIncrementViewCount,
@@ -29,8 +25,6 @@ const PostPage = () => {
   })
   const deletePostMutation = useDeletePost()
   const createCommentMutation = useCreateComment(postId)
-  const updateCommentMutation = useUpdateComment(postId)
-  const deleteCommentMutation = useDeleteComment(postId)
   const handleDelete = async () => {
     await deletePostMutation.mutateAsync(postId, {
       onSuccess: () => {
@@ -59,7 +53,7 @@ const PostPage = () => {
             <div className="flex justify-center space-x-2 mt-2">
               <Button
                 size="sm"
-                onClick={() => router.push(`/posts/${post.id}/edit-post`)}>
+                onClick={() => router.push(`/posts/${postId}/edit-post`)}>
                 Edit Post
               </Button>
               <Button size="sm" onClick={handleDelete}>
@@ -68,10 +62,8 @@ const PostPage = () => {
             </div>
           )}
           <CommentSection
-            comments={post.comments}
+            postId={postId}
             createComment={createCommentMutation}
-            updateComment={updateCommentMutation}
-            deleteComment={deleteCommentMutation}
           />
         </article>
       ) : (
