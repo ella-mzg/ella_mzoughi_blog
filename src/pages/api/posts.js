@@ -2,6 +2,7 @@ import authorize from "@/api/middlewares/authorize"
 import validate from "@/api/middlewares/validate"
 import mw from "@/api/mw"
 import {
+  idValidator,
   pageValidator,
   postContentValidator,
   titleValidator
@@ -25,17 +26,23 @@ const handle = mw({
   GET: [
     validate({
       query: {
-        page: pageValidator.required()
+        page: pageValidator,
+        userId: idValidator
       }
     }),
     async ({
       send,
       input: {
-        query: { page }
+        query: { page, userId }
       },
       models: { PostModel }
     }) => {
-      const query = PostModel.query()
+      let query = PostModel.query()
+
+      if (userId) {
+        query = query.where("userId", userId)
+      }
+
       const posts = await query.clone().page(page)
       const [{ count }] = await query.clone().count()
 

@@ -2,6 +2,8 @@ import { faker } from "@faker-js/faker"
 import hashPassword from "../hashPassword.js"
 
 export const seed = async (db) => {
+  const baseDate = new Date()
+  const incrementStep = 1000
   const users = await Promise.all(
     [...new Array(10)].map(async () => {
       const userFirstName = faker.person.firstName()
@@ -34,22 +36,24 @@ export const seed = async (db) => {
     })
   )
   const insertedUsers = await db("users").insert(users).returning("*")
-  const posts = [...new Array(10)].map(() => ({
-    title: faker.lorem.sentence({ min: 2, max: 5 }),
+  const posts = [...new Array(10)].map((_, index) => ({
+    title: faker.lorem.sentence(),
     content: faker.lorem.paragraph(),
     userId:
       insertedUsers[faker.number.int({ min: 0, max: insertedUsers.length - 1 })]
-        .id
+        .id,
+    createdAt: new Date(baseDate.getTime() + index * incrementStep)
   }))
   const insertedPosts = await db("posts").insert(posts).returning("*")
-  const comments = [...new Array(20)].map(() => ({
+  const comments = [...new Array(20)].map((_, index) => ({
     content: faker.lorem.paragraph(),
     userId:
       insertedUsers[faker.number.int({ min: 0, max: insertedUsers.length - 1 })]
         .id,
     postId:
       insertedPosts[faker.number.int({ min: 0, max: insertedPosts.length - 1 })]
-        .id
+        .id,
+    createdAt: new Date(baseDate.getTime() + index * incrementStep)
   }))
 
   await db("comments").insert(comments)

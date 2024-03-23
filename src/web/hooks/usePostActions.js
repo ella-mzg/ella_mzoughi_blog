@@ -14,6 +14,18 @@ export const useReadPost = (postId) =>
     enabled: Boolean(postId)
   })
 
+export const useReadPostsByUserId = (userId) =>
+  useQuery({
+    queryKey: ["userPosts", userId],
+    queryFn: async () => {
+      const params = { params: { userId } }
+      const response = await readResource(["posts"], params)
+
+      return response.data.result
+    },
+    enabled: Boolean(userId)
+  })
+
 export const useUpdatePost = () => {
   const queryClient = useQueryClient()
 
