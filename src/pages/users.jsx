@@ -6,6 +6,7 @@ import config from "@/web/config"
 import useAuthorization from "@/web/hooks/useAuthorization"
 import { readResource } from "@/web/services/apiClient"
 import { useQuery } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 
 export const getServerSideProps = ({ query: { page } }) => ({
   props: {
@@ -24,13 +25,20 @@ const UsersPage = ({ page }) => {
   const { AuthorizationAlert } = useAuthorization({
     allowedRoles: ["administrator"]
   })
-  const sortedUsers = users?.sort((a, b) => a.id - b.id) || []
+  const [sortedUsers, setSortedUsers] = useState([])
+
+  useEffect(() => {
+    if (users) {
+      const sorted = [...users].sort((a, b) => a.id - b.id)
+      setSortedUsers(sorted)
+    }
+  }, [users])
 
   return (
     <AuthorizationAlert>
       <div className="py-4 flex flex-col gap-16">
         <Loader isLoading={isLoading || !users} />
-        {!isLoading && (
+        {!isLoading && sortedUsers && (
           <>
             <ul className="flex flex-col gap-8">
               {sortedUsers.map((user) => (
