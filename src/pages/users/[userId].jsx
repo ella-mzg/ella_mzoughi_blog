@@ -52,7 +52,7 @@ const UserProfile = () => {
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Posts</h2>
             <div className="space-y-4">
               {sortedPosts.map((post, index) => (
-                <div key={index} className="p-3 rounded-lg shadow bg-gray-50">
+                <div key={index} className="p-3 rounded shadow bg-gray-50">
                   <Link href={`/posts/${post.id}`}>{post.title}</Link>
                 </div>
               ))}

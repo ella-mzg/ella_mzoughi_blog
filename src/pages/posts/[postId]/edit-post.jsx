@@ -77,8 +77,9 @@ const EditPost = () => {
                 as="textarea"
                 label="Content"
                 placeholder="Update your post content"
+                className="mt-2"
               />
-              <div className="flex justify-center space-x-2">
+              <div className="flex justify-center mt-5">
                 <SubmitButton>Update Post</SubmitButton>
               </div>
             </Form>

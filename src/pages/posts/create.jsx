@@ -62,8 +62,9 @@ const CreatePost = () => {
             as="textarea"
             label="Content"
             placeholder="Write your post..."
+            className="mt-2"
           />
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-5">
             <SubmitButton>Create Post</SubmitButton>
           </div>
         </Form>

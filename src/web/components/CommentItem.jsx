@@ -44,7 +44,7 @@ const CommentItem = ({ commentId }) => {
       <Loader isLoading={isLoading || !comment} />
       {!isLoading && comment && (
         <article
-          className={clsx("bg-white shadow rounded-lg p-4 mb-4", {
+          className={clsx("bg-white shadow rounded p-4 mb-4", {
             "bg-gray-100": isEditing
           })}>
           {error && <p className="text-red-500">{error}</p>}

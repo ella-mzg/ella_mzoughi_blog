@@ -78,7 +78,7 @@ const EditProfile = () => {
                 label="E-mail"
                 placeholder="Update your e-mail"
               />
-              <div className="flex justify-center">
+              <div className="flex justify-center mt-5">
                 <SubmitButton>Update Profile</SubmitButton>
               </div>
             </Form>

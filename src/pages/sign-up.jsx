@@ -66,7 +66,7 @@ const SignUpPage = () => {
             placeholder="Enter your password"
             label="Password"
           />
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-5">
             <SubmitButton className="w-24">Sign Up</SubmitButton>
           </div>
         </Form>
