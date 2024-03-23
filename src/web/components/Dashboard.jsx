@@ -38,18 +38,21 @@ const Dashboard = ({ userId }) => {
   }
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-6">
+    <div className="mt-3 p-6 divide-y divide-gray-200">
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">Dashboard</h1>
-      <div className="space-y-3 font-medium">
-        <p>
-          <span className="font-semibold">Posts:</span> {postCount}
-        </p>
-        <p>
-          <span className="font-semibold">Comments:</span> {commentCount}
-        </p>
-        <p>
-          <span className="font-semibold">Total Post Views:</span> {viewCount}
-        </p>
+      <div className="pt-4 space-y-4 font-medium text-gray-600">
+        <div className="flex justify-between">
+          <span>Posts:</span>
+          <span className="font-semibold text-gray-800">{postCount}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Comments:</span>
+          <span className="font-semibold text-gray-800">{commentCount}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Total Post Views:</span>
+          <span className="font-semibold text-gray-800">{viewCount}</span>
+        </div>
       </div>
     </div>
   )

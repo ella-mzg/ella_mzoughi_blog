@@ -36,7 +36,7 @@ const CommentSection = ({ postId, createComment }) => {
         initialValues={newCommentInitialValues}
         onSubmit={handleCreateComment}
       />
-      <h2 className="text-xl font-semibold text-gray-800 mb-5">Comments:</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-5">Comments</h2>
       <Loader isLoading={isLoading} />
       {!isLoading && sortedComments.length > 0 ? (
         sortedComments.map((comment) => (

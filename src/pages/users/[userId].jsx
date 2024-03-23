@@ -6,6 +6,7 @@ import useAuthorization from "@/web/hooks/useAuthorization"
 import { useReadPostsByUserId } from "@/web/hooks/usePostActions"
 import { useReadUser } from "@/web/hooks/useUserActions"
 import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
 
 const UserProfile = () => {
   const router = useRouter()
@@ -14,40 +15,52 @@ const UserProfile = () => {
   const [user] = data?.data?.result || []
   const { data: postsData, isLoading: isLoadingPosts } =
     useReadPostsByUserId(userId)
-  const posts = postsData || []
+  const [sortedPosts, setSortedPosts] = useState([])
+
+  useEffect(() => {
+    if (postsData) {
+      const sorted = [...postsData].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )
+      setSortedPosts(sorted)
+    }
+  }, [postsData])
+
   const { isAuthorized } = useAuthorization({
     userId,
     allowedRoles: ["administrator"]
   })
 
   return (
-    <>
+    <div className="max-w-4xl mx-auto mt-10">
       <Loader isLoading={isLoadingUser || isLoadingPosts} />
       {!isLoadingUser && user && (
-        <article className="p-4 bg-white rounded shadow-md">
-          <h1 className="text-2xl font-bold mb-2">{user.username}</h1>
-          <p className="text-gray-600 mb-4">{user.email}</p>
-          {isAuthorized && (
-            <Button
-              size="sm"
-              onClick={() => router.push(`/users/${user.id}/edit-profile`)}>
-              Edit Profile
-            </Button>
-          )}
+        <div className="bg-white rounded shadow">
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold">{user.username}</h1>
+            <p className="text-gray-500 mb-5">{user.email}</p>
+            {isAuthorized && (
+              <Button
+                size="sm"
+                onClick={() => router.push(`/users/${user.id}/edit-profile`)}>
+                Edit Profile
+              </Button>
+            )}
+          </div>
           <Dashboard userId={user.id} />
-          {posts.length > 0 && (
-            <>
-              <h2 className="text-lg font-bold mb-4 mt-4">Posts:</h2>
-              {posts.map((post, index) => (
-                <div key={index} className="mb-4 p-3 rounded shadow bg-gray-50">
+          <div className="p-6 divide-y divide-gray-200">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Posts</h2>
+            <div className="space-y-4">
+              {sortedPosts.map((post, index) => (
+                <div key={index} className="p-3 rounded-lg shadow bg-gray-50">
                   <Link href={`/posts/${post.id}`}>{post.title}</Link>
                 </div>
               ))}
-            </>
-          )}
-        </article>
+            </div>
+          </div>
+        </div>
       )}
-    </>
+    </div>
   )
 }
 
